@@ -1,0 +1,295 @@
+openapi: 3.0.0
+info:
+  title: Product API
+  description: Product API with filtering, pagination, and sorting capabilities
+  version: 1.0.0
+  contact:
+    name: API Support
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:3000
+    description: Development server
+  - url: https://api.example.com
+    description: Production server
+
+tags:
+  - name: Products
+    description: Product operations
+
+paths:
+  /:
+    get:
+      tags:
+        - Products
+      summary: Get all products
+      operationId: getAllProducts
+      description: Retrieves a paginated list of all products with support for filtering by category, price range, and stock status, as well as sorting and pagination controls.
+      parameters:
+        - name: category
+          in: query
+          description: Filter products by category name
+          schema:
+            type: string
+          example: electronics
+        - name: minPrice
+          in: query
+          description: Filter products with price greater than or equal to this value
+          schema:
+            type: number
+            format: float
+          example: 100
+        - name: maxPrice
+          in: query
+          description: Filter products with price less than or equal to this value
+          schema:
+            type: number
+            format: float
+          example: 500
+        - name: sort
+          in: query
+          description: Field name to sort by (e.g., price, createdAt, name)
+          schema:
+            type: string
+            default: createdAt
+          example: price
+        - name: order
+          in: query
+          description: Sort order direction
+          schema:
+            type: string
+            enum:
+              - asc
+              - desc
+            default: desc
+          example: asc
+        - name: page
+          in: query
+          description: Page number for pagination (1-indexed)
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+          example: 1
+        - name: limit
+          in: query
+          description: Number of products per page
+          schema:
+            type: integer
+            minimum: 1
+            default: 20
+          example: 10
+        - name: inStock
+          in: query
+          description: Filter to show only in-stock products. Set to 'true' to filter
+          schema:
+            type: string
+            enum:
+              - 'true'
+              - 'false'
+          example: 'true'
+      responses:
+        '200':
+          description: Successfully retrieved list of products
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  products:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Product'
+                    description: Array of product objects matching the filter criteria
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+              example:
+                products:
+                  - _id: 507f1f77bcf86cd799439011
+                    name: Wireless Headphones
+                    category: electronics
+                    price: 199.99
+                    stockQuantity: 45
+                    createdAt: '2026-04-15T10:30:00Z'
+                  - _id: 507f1f77bcf86cd799439012
+                    name: Bluetooth Speaker
+                    category: electronics
+                    price: 79.99
+                    stockQuantity: 30
+                    createdAt: '2026-04-14T15:20:00Z'
+                pagination:
+                  total: 150
+                  page: 1
+                  limit: 10
+                  pages: 15
+        '500':
+          description: Server error occurred while fetching products
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Server error
+                message: Failed to fetch products
+
+  /{productId}:
+    get:
+      tags:
+        - Products
+      summary: Get product by ID
+      operationId: getProductById
+      description: Retrieves detailed information about a single product by its unique MongoDB ObjectId.
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          description: The unique identifier of the product. Must be a valid MongoDB ObjectId format (24-character hexadecimal string)
+          schema:
+            type: string
+            format: uuid
+          example: 507f1f77bcf86cd799439011
+      responses:
+        '200':
+          description: Successfully retrieved product details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+              example:
+                _id: 507f1f77bcf86cd799439011
+                name: Wireless Headphones
+                category: electronics
+                price: 199.99
+                description: High-quality wireless headphones with noise cancellation
+                stockQuantity: 45
+                createdAt: '2026-04-10T12:00:00Z'
+                updatedAt: '2026-04-15T10:30:00Z'
+        '400':
+          description: Invalid MongoDB ObjectId format (CastError). The productId does not match MongoDB ObjectId format (valid format is a 24-character hexadecimal string)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Invalid ID
+                message: Invalid product ID format
+        '404':
+          description: Product not found. The provided productId is a valid MongoDB ObjectId format, but no product exists with this ID in the database
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Not found
+                message: Product not found
+        '500':
+          description: Server error occurred while fetching product
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: Server error
+                message: Failed to fetch product
+
+components:
+  schemas:
+    Product:
+      type: object
+      required:
+        - _id
+        - name
+        - category
+        - price
+        - stockQuantity
+        - createdAt
+      properties:
+        _id:
+          type: string
+          format: uuid
+          description: The unique MongoDB ObjectId identifier for the product
+          example: 507f1f77bcf86cd799439011
+        name:
+          type: string
+          description: The name of the product
+          example: Wireless Headphones
+        category:
+          type: string
+          description: The product category
+          example: electronics
+        price:
+          type: number
+          format: float
+          minimum: 0
+          description: The price of the product in USD
+          example: 199.99
+        description:
+          type: string
+          description: Detailed description of the product
+          example: High-quality wireless headphones with noise cancellation
+          nullable: true
+        stockQuantity:
+          type: integer
+          minimum: 0
+          description: The number of units available in stock
+          example: 45
+        createdAt:
+          type: string
+          format: date-time
+          description: The timestamp when the product was created
+          example: '2026-04-10T12:00:00Z'
+        updatedAt:
+          type: string
+          format: date-time
+          description: The timestamp when the product was last updated
+          example: '2026-04-15T10:30:00Z'
+          nullable: true
+
+    Pagination:
+      type: object
+      required:
+        - total
+        - page
+        - limit
+        - pages
+      properties:
+        total:
+          type: integer
+          minimum: 0
+          description: Total number of products matching the filter criteria
+          example: 150
+        page:
+          type: integer
+          minimum: 1
+          description: Current page number (1-indexed)
+          example: 1
+        limit:
+          type: integer
+          minimum: 1
+          description: Number of products per page
+          example: 10
+        pages:
+          type: integer
+          minimum: 1
+          description: Total number of pages available
+          example: 15
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error type or category
+          enum:
+            - Server error
+            - Not found
+            - Invalid ID
+          example: Server error
+        message:
+          type: string
+          description: Detailed error message
+          example: Failed to fetch products

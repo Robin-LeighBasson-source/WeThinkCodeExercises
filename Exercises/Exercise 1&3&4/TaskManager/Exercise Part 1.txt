@@ -1,0 +1,28 @@
+Part 1 Exercise: Project Structure Findings
+1. Misconceptions & Clarifications
+
+Initial Assumption: I initially assumed the app.js file might be the primary entry point or part of a REST API (like an Express server) since it contained the core CRUD logic.
+
+Correction: The AI analysis clarified that this is strictly a Command-Line Interface (CLI) application. The actual entry point is cli.js, which uses the commander.js framework to catch terminal inputs and pass them down to app.js.
+
+Missing Pieces: I originally missed the utility files (task_parser.js, task_priority.js, and task_list_merge.js). The analysis showed that the system handles more complex logic than just basic CRUD operations, such as parsing free-form text and merging task lists.
+
+2. Important Entry Points and Architectural Patterns
+
+Application Entry Point: cli.js. This file intercepts all user commands.
+
+Separation of Concerns (Layered Architecture): The project follows a strict top-down flow: CLI Layer (Presentation) → Business Logic Layer (TaskManager) → Data Model Layer (Task definitions) → Storage Layer (TaskStorage).
+
+In-Memory Cache Pattern: Instead of querying a database constantly, TaskStorage loads all tasks from tasks.json into memory on startup, makes modifications to that cached state, and overwrites the JSON file upon saving.
+
+3. Key Components and Responsibilities
+
+cli.js (CLI Layer): Acts as the router. Parses command-line arguments and flags, formats the terminal output, and triggers the appropriate methods in TaskManager.
+
+app.js (Business Logic Layer): Contains the TaskManager class. It acts as the "controller," validating data (like date formats) and orchestrating operations between the CLI and the storage system.
+
+models.js (Data Model Layer): Defines the shape of the data. Contains the Task class (with its properties like UUID, timestamps) and the immutable constants for TaskStatus and TaskPriority.
+
+storage.js (Storage Layer): Handles data persistence. Manages the reading and writing of the tasks.json file and maintains the in-memory array of tasks.
+
+Utility Modules (task_parser.js, task_priority.js, task_list_merge.js): Handle highly specific backend logic to keep the main app.js controller clean, such as calculating priority scores or parsing complex string inputs.

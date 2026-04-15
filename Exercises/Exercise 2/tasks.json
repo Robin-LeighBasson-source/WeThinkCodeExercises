@@ -1,0 +1,53 @@
+[
+  {
+    "id": "8d7e2b87-949c-4f87-9f8c-c65df7255d74",
+    "title": "Fix critical bug",
+    "description": "Production is down",
+    "priority": "4",
+    "status": "todo",
+    "createdAt": "2026-04-15T12:15:10.037Z",
+    "updatedAt": "2026-04-15T12:15:10.037Z",
+    "dueDate": null,
+    "completedAt": null,
+    "tags": [
+      "blocker",
+      "critical"
+    ]
+  },
+  {
+    "id": "00f1850b-3451-4580-8c45-8ccd783c8678",
+    "title": "Review design document",
+    "description": "Low priority review",
+    "priority": "1",
+    "status": "todo",
+    "createdAt": "2026-04-15T12:15:18.093Z",
+    "updatedAt": "2026-04-15T12:15:18.093Z",
+    "dueDate": "2026-05-01T00:00:00.000Z",
+    "completedAt": null,
+    "tags": []
+  },
+  {
+    "id": "e597c115-40d8-46c2-9f33-7f1149e316dc",
+    "title": "Overdue follow-up",
+    "description": "Should have been done yesterday",
+    "priority": "2",
+    "status": "todo",
+    "createdAt": "2026-04-15T12:15:26.097Z",
+    "updatedAt": "2026-04-15T12:15:26.097Z",
+    "dueDate": "2026-04-14T00:00:00.000Z",
+    "completedAt": null,
+    "tags": []
+  },
+  {
+    "id": "7eb837da-f17b-42ac-b299-2f079e38e14f",
+    "title": "Deploy to staging",
+    "description": "Need to test before production",
+    "priority": "3",
+    "status": "todo",
+    "createdAt": "2026-04-15T12:15:31.626Z",
+    "updatedAt": "2026-04-15T12:15:31.626Z",
+    "dueDate": "2026-04-16T00:00:00.000Z",
+    "completedAt": null,
+    "tags": []
+  }
+]
