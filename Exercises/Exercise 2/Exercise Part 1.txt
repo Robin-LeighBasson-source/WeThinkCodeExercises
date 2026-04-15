@@ -1,0 +1,26 @@
+1. Main components involved
+The feature relies on a three-layer architecture:
+
+CLI Layer (cli.js): Parses the raw terminal commands (using the commander package).
+
+Business Logic Layer (app.js): The TaskManager class acts as the controller, validating user input (like due dates) and orchestrating operations.
+
+Data & Persistence Layer (models.js & storage.js): Defines the Task structure and handles the actual reading/writing of the in-memory cache to the tasks.json file.
+
+2. Execution flow (Creation & Updates)
+
+Creation Flow: The user types a create command in the CLI. cli.js passes the arguments to TaskManager.createTask(). The Manager validates the date format, instantiates a new Task object (which generates a UUID and createdAt timestamp), and passes it to TaskStorage. The storage layer adds it to memory and writes the updated list to tasks.json.
+
+Update Flow (The DONE Exception): When updating a status, the execution flow branches. If changing to TODO or IN_PROGRESS, the Manager simply updates the status string. However, if the new status is DONE, the Manager calls a specific markAsDone() method on the Task object. This is crucial because it not only changes the status but also generates a completedAt timestamp used for future statistics and filtering.
+
+3. How data is stored and retrieved
+
+Storage: Data is kept in an in-memory dictionary (object store) while the app is running, and persisted permanently to a local tasks.json file using Node's native fs module.
+
+Retrieval (Deserialization): Because JSON cannot store native JavaScript Date objects (they get converted to strings), the storage layer has to manually reconstruct the Task objects upon retrieval, parsing the stringified dates back into proper Date instances.
+
+4. Interesting design patterns discovered
+
+Semantic Operations: Instead of treating all status updates identically, the system uses semantic methods (like markAsDone()). This pattern recognizes that certain status changes in the real world have side effects (like needing to record exactly when something was finished) that go beyond just flipping a string.
+
+Layered Separation of Concerns: The CLI has absolutely no idea that a JSON file exists, and the JSON file has no idea it's being controlled by a terminal. They are completely decoupled by the TaskManager.
